@@ -1,7 +1,7 @@
 """This module will serve the api request."""
 from config import client
 from flask import request, jsonify
-from service import 
+import service
 
 # Import the helpers module
 helper_module = imp.load_source('*', './Api/app/helpers.py')
