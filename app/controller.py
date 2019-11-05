@@ -23,7 +23,7 @@ def get_enterprises():
 
             elif 'id' in query_params:
                 result = svc.get_enterprise_by_id(query_params['id'])
-                return  jsonify({"enterprise": result}), 200
+                return  jsonify(result), 200
             
             else:
                 result = svc.get_enterprises()

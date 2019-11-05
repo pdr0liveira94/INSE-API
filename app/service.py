@@ -3,14 +3,16 @@ from config import mysql
 
 def get_enterprise_id_by_name(name):
     try:
+        parsedName = name.replace('_', ' ')
+        print(parsedName)
         cursor = mysql.connection.cursor()
         cursor.execute("""
             select id from empresa 
-            where nomefantasia like '""" + name + "%'")
+            where nomefantasia like '""" + parsedName + "%'")
         result = cursor.fetchone()
 
         cursor.close()
-        return result[0]
+        return str(result[0])
     except Exception as e:
         print(e)
 
@@ -18,21 +20,34 @@ def get_enterprise_by_id(id):
     try:
         cursor = mysql.connection.cursor()
         cursor.execute("""
-            SELECT i.perspectiva_bsc, i.impacto 
+            SELECT i.dimensao, i.impacto 
             FROM empresa AS e
             JOIN plano_estrategico AS pe
             ON pe.empresa = e.id
             JOIN impacto AS i
             ON i.plano_estrategico = pe.id
             WHERE pe.ativo = 1
-            AND i.dimensao = 'Geral'
+            AND i.perspectiva_bsc = 'Geral'
             AND e.id = '""" + id + "'")
 
-        result = cursor.fetchall()
-        print(result)
+        queryresult = cursor.fetchall()
+
+        cursor.execute(
+            """
+                SELECT nomefantasia
+                FROM empresa
+                WHERE id = '""" + id + "'")
         
+        name = cursor.fetchone()
+        print(queryresult)
         cursor.close()
-        return dict((str(dimension), int(impact)) for dimension, impact in result)
+        
+        result = {
+            "name": ''.join(name),
+            "rankings": dict((str(dimension), str(float(impact/100))) for dimension, impact in queryresult)
+        }
+
+        return result
     except Exception as e:
         print(e)
 
