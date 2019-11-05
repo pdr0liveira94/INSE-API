@@ -1,31 +1,35 @@
 """This module will serve the api request."""
-from config import client
 from flask import request, jsonify
-import service
+import app.service as svc
+from app import app
+import imp, json
 
 # Import the helpers module
-helper_module = imp.load_source('*', './Api/app/helpers.py')
+helper_module = imp.load_source('*', './app/helpers.py')
 
 @app.route('/', methods=['GET'])
 def mainPage():
     return jsonify({"message": "I'm alive."})
 
-@app.route('/answer', methods=['GET'])
-def get_videos():
+@app.route('/enterprises', methods=['GET'])
+def get_enterprises():
     try:
-        # Retrieve url data
         query_params = helper_module.parse_query_params(request.query_string)
 
-        if (query_params not None and
-            'id' in query_params):
-            details = query_params
+        if query_params is not None:        
+            if 'name' in query_params:
+                result = svc.get_enterprise_id_by_name(query_params['name'])
+                return jsonify({"id": result}), 200
 
-            return response, 200
-        else:
-            return "Missing Parameter", 400
+            elif 'id' in query_params:
+                result = svc.get_enterprise_by_id(query_params['id'])
+                return  jsonify({"enterprise": result}), 200
+            
+            else:
+                return 'Missing Arguments', 400
     except Exception as e:
         print(e)
-        return "Server Error", 500
+        return "Server error", 500
 
 @app.errorhandler(404)
 def page_not_found(e):
