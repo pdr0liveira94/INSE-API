@@ -35,3 +35,16 @@ def get_enterprise_by_id(id):
         return dict((str(dimension), int(impact)) for dimension, impact in result)
     except Exception as e:
         print(e)
+
+def get_enterprises():
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        """
+            SELECT nomefantasia
+            FROM empresa;
+        """
+    )
+
+    result = cursor.fetchall()
+    cursor.close()
+    return [''.join(name) for name in result]

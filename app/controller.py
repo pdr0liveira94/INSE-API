@@ -26,7 +26,8 @@ def get_enterprises():
                 return  jsonify({"enterprise": result}), 200
             
             else:
-                return 'Missing Arguments', 400
+                result = svc.get_enterprises()
+                return jsonify(result), 200
     except Exception as e:
         print(e)
         return "Server error", 500
