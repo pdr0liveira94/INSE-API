@@ -11,7 +11,7 @@ Jinja2==2.10.1
 MarkupSafe==1.1.1
 mysqlclient==1.4.5
 numpy==1.15.4
-pycurl==7.43.0.1
+pycurl==7.43.0.3
 PyMySQL==0.9.3
 requests==2.20.0
 six==1.13.0
