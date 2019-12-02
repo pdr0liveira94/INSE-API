@@ -9,4 +9,8 @@ app.config["MYSQL_HOST"] = "localhost" # IP Address
 app.config["MYSQL_USER"] = "root" # DB User
 app.config["MYSQL_PASSWORD"] = "root" # User Password
 app.config["MYSQL_DB"] = "inse" # DB Name
+
+app.config['JSON_AS_ASCII'] = True
 mysql = MySQL(app)
+
+

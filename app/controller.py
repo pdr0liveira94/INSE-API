@@ -14,22 +14,50 @@ def mainPage():
 @app.route('/enterprises', methods=['GET'])
 def get_enterprises():
     try:
-        query_params = helper_module.parse_query_params(request.query_string)
+        # query_params = helper_module.parse_query_params(request.query_string.decode('utf-16', errors='ignore'))
+        # print(query_params)
 
-        if query_params is not None:        
-            if 'name' in query_params:
-                result = svc.get_enterprise_id_by_name(query_params['name'])
-                return jsonify({"id": result}), 200
+        name = request.args.get('name')
+        id = request.args.get('id')
 
-            elif 'id' in query_params:
-                result = svc.get_enterprise_by_id(query_params['id'])
-                return  jsonify(result), 200
-            
-            else:
-                result = svc.get_enterprises()
-                return jsonify(result), 200
+        # if query_params is not None:        
+        if name is not None:
+            print('Retrieving an ID')
+            result = svc.get_enterprise_id_by_name(name)
+            return jsonify({"id": result}), 200
+
+        elif id is not None:
+            print('Retrieving an ENTERPRISE')
+            result = svc.get_enterprise_by_id(id)
+            return  jsonify(result), 200
+        
+        else:
+            print('Retrieving an collection of ENTERPRISES')
+
+            branch = request.args.get('branch')
+            if branch is not None:
+                branch = branch.replace('_', ' ')
+
+            state = request.args.get('state')
+            if state is not None:
+                state = state.replace('_', ' ')
+
+            city = request.args.get('city')
+            if city is not None:
+                city.replace('_', ' ')
+
+            result = svc.get_enterprises(branch, state, city)
+            result.sort()
+            return jsonify(result), 200
     except Exception as e:
         print(e)
+        return "Server error", 500
+
+@app.route('/branches', methods=['GET'])
+def get_branches():
+    try:
+        return jsonify(svc.get_branches()), 200
+    except:
         return "Server error", 500
 
 @app.errorhandler(404)
