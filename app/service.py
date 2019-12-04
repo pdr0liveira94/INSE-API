@@ -49,35 +49,42 @@ def get_enterprise_by_id(id):
         print(name)
         result['name'] = ''.join(name)
 
-        # # TODO
-        # # fetch enterprise's rankings
-        # cursor.execute(
-        #     """
-        #         SELECT i.dimensao, i.impacto 
-        #         FROM empresa AS e
-        #         JOIN plano_estrategico AS pe
-        #         ON pe.empresa = e.id
-        #         JOIN impacto AS i
-        #         ON i.plano_estrategico = pe.id
-        #         WHERE pe.ativo = 1
-        #         AND i.perspectiva_bsc = 'Geral'
-        #         AND e.id = '""" + id + "'"
-        # )
-
         cursor.close()
 
         return result
     except Exception as e:
         print(e)
 
-def get_enterprises(branch, state, city):
-    suffix = ""
-    print(branch, state, city)
-
+def get_enterprises():
     cursor = mysql.connection.cursor()
     sql = """
             SELECT nomefantasia
             FROM empresa as emp
+        """
+    print(sql)
+
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    names = [''.join(name) for name in result]
+    cursor.close()
+    return names
+
+def get_enterprises_with_filters(branch, state, city):
+    suffix = """
+                AND pe.ativo = 1
+                AND i.dimensao = 'Geral'
+                AND i.perspectiva_bsc = 'Geral'
+                ORDER BY impacto
+            """
+
+    cursor = mysql.connection.cursor()
+    sql = """
+            SELECT emp.nomefantasia, i.impacto
+            FROM empresa as emp
+            JOIN plano_estrategico AS pe
+            ON pe.empresa = emp.id
+            JOIN impacto AS i
+            ON i.plano_estrategico = pe.id
         """
 
     if branch is not None:
@@ -86,7 +93,11 @@ def get_enterprises(branch, state, city):
                 ON ra.id = emp.ramo
             """
         suffix = """
-            AND ra.ramo = '""" + branch + """'
+            AND ra.atividade = '""" + branch + """'
+            AND pe.ativo = 1
+            AND i.dimensao = 'Geral'
+            AND i.perspectiva_bsc = 'Geral'
+            ORDER BY i.impacto
         """
 
     if state is not None:
@@ -105,8 +116,17 @@ def get_enterprises(branch, state, city):
 
     cursor.execute(sql)
     result = cursor.fetchall()
-    names = [''.join(name) for name in result]
+
+    names = []
+    for name, impact in result:
+        row = {
+            "name": name,
+            "score": str(impact)
+        }
+        names.append(row)
+
     cursor.close()
+    print(names)
     return names
 
 def get_branches():

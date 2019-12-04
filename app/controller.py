@@ -14,11 +14,22 @@ def mainPage():
 @app.route('/enterprises', methods=['GET'])
 def get_enterprises():
     try:
-        # query_params = helper_module.parse_query_params(request.query_string.decode('utf-16', errors='ignore'))
-        # print(query_params)
 
+        # Retrieving arguments
         name = request.args.get('name')
         id = request.args.get('id')
+
+        branch = request.args.get('branch')
+        if branch is not None:
+            branch = branch.replace('_', ' ')
+
+        state = request.args.get('state')
+        if state is not None:
+            state = state.replace('_', ' ')
+
+        city = request.args.get('city')
+        if city is not None:
+            city.replace('_', ' ')
 
         # if query_params is not None:        
         if name is not None:
@@ -31,23 +42,13 @@ def get_enterprises():
             result = svc.get_enterprise_by_id(id)
             return  jsonify(result), 200
         
-        else:
+        elif branch is not None or state is not None or city is not None:
             print('Retrieving an collection of ENTERPRISES')
 
-            branch = request.args.get('branch')
-            if branch is not None:
-                branch = branch.replace('_', ' ')
-
-            state = request.args.get('state')
-            if state is not None:
-                state = state.replace('_', ' ')
-
-            city = request.args.get('city')
-            if city is not None:
-                city.replace('_', ' ')
-
-            result = svc.get_enterprises(branch, state, city)
-            result.sort()
+            result = svc.get_enterprises_with_filters(branch, state, city)
+            return jsonify(result), 200
+        else:
+            result = svc.get_enterprises()
             return jsonify(result), 200
     except Exception as e:
         print(e)
